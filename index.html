@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F1 Racing Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;700&display=swap');
 
         :root {
-            --background-color: #1a1a1a;
-            --surface-color: #2c2c2c;
+            --background-color: #ffffff;
+            --surface-color: #f5f5f5;
             --primary-color: #e10600; /* F1 Red */
-            --secondary-color: #ffd700; /* Gold/Yellow */
-            --text-color: #ffffff;
-            --text-secondary-color: #a0a0a0;
+            --secondary-color: var(--primary-color);
+            --text-color: #000000;
+            --text-secondary-color: #555555;
         }
 
         body {
@@ -24,19 +25,20 @@
             padding: 0;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        header {
+            background-image: url('frontend/images/F1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            padding: 40px 20px; /* Reduced vertical padding */
+            text-align: center;
+            position: relative;
+            color: white;
         }
 
-        header {
-            background-color: var(--surface-color);
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid var(--primary-color);
+        .header-content {
+            position: relative;
+            z-index: 1;
         }
 
         header h1 {
@@ -44,29 +46,63 @@
             margin: 0;
             font-weight: 700;
             text-transform: uppercase;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
         }
 
         nav a {
-            color: var(--text-color);
+            color: white;
             text-decoration: none;
             margin: 0 15px;
-            font-size: 1.1em;
+            font-size: 1.2em;
             transition: color 0.3s;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
         }
 
         nav a:hover, nav a.active {
             color: var(--primary-color);
         }
 
-        #cart-button {
+        #floating-cart-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
             background-color: var(--primary-color);
-            color: var(--text-color);
+            color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 50%; /* Make it circular */
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
             cursor: pointer;
-            font-size: 1em;
-            font-weight: 700;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #floating-cart-button:hover {
+            background-color: #c00500; /* Darker red on hover */
+            transform: scale(1.05);
+        }
+
+        #floating-cart-button i {
+            margin-right: 5px;
+        }
+
+        #floating-cart-count {
+            background-color: white;
+            color: var(--primary-color);
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 20px;
+            text-align: center;
         }
         
         #products-grid {
@@ -77,17 +113,16 @@
         }
 
         .product-card {
-            background-color: var(--surface-color);
             border-radius: 8px;
             overflow: hidden;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            border: 1px solid transparent;
-            transition: border 0.3s;
+            border: 1px solid #eee;
+            transition: box-shadow 0.3s;
         }
         .product-card:hover {
-            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .product-card h3 {
@@ -95,12 +130,13 @@
             margin-top: 0;
         }
         
-        .product-card .placeholder-img {
+        .product-card .product-image {
             width: 100%;
-            height: 150px;
+            height: 200px;
             background-color: #444;
             border-radius: 5px;
             margin-bottom: 15px;
+            object-fit: cover;
         }
 
         .product-options, .product-specs {
@@ -112,9 +148,9 @@
             padding: 10px;
             margin-top: 10px;
             border-radius: 5px;
-            border: 1px solid #555;
-            background-color: #333;
-            color: var(--text-color);
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #333;
             box-sizing: border-box;
         }
 
@@ -123,13 +159,14 @@
             cursor: pointer;
             font-weight: 700;
             border: none;
+            color: white;
         }
 
         /* Cart Modal */
         #cart-modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 2;
             left: 0;
             top: 0;
             width: 100%;
@@ -139,13 +176,14 @@
         }
 
         #cart-content {
-            background-color: var(--surface-color);
             margin: 10% auto;
             padding: 20px;
             border: 1px solid var(--primary-color);
             width: 80%;
             max-width: 700px;
             border-radius: 8px;
+            color: var(--text-color);
+            background-color: var(--surface-color);
         }
         
         #cart-items {
@@ -157,7 +195,7 @@
             display: flex;
             align-items: center;
             padding: 15px 0;
-            border-bottom: 1px solid #444;
+            border-bottom: 1px solid #ddd;
         }
         
         .cart-item img {
@@ -178,8 +216,8 @@
         }
         
         .cart-item-quantity button {
-            background: #444;
-            color: white;
+            background: #eee;
+            color: #333;
             border: none;
             width: 25px;
             height: 25px;
@@ -194,7 +232,7 @@
         .payment-section {
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid #444;
+            border-top: 1px solid #ddd;
         }
         .payment-section h3 {
             color: var(--secondary-color);
@@ -207,9 +245,9 @@
         .payment-inputs input {
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #555;
-            background-color: #333;
-            color: var(--text-color);
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #333;
             box-sizing: border-box;
         }
         #card-number { flex-grow: 2; }
@@ -220,14 +258,16 @@
 <body>
 
     <header>
-        <h1>F1 Racing Store</h1>
-        <nav id="categories-nav">
-            <a href="#" data-category="tech">Техника</a>
-            <a href="#" data-category="digital">Цифровые</a>
-            <a href="#" data-category="accessories">Аксессуары</a>
-            <a href="#" data-category="gifts">Новогодние подарки</a>
-        </nav>
-        <button id="cart-button">Корзина (0)</button>
+        <div class="header-content">
+            <h1>F1 Racing Store</h1>
+            <nav id="categories-nav">
+                <a href="#" data-category="tech">Техника</a>
+                <a href="#" data-category="digital">Цифровые</a>
+                <a href="#" data-category="accessories">Аксессуары</a>
+                <a href="#" data-category="gifts">Новогодние подарки</a>
+            </nav>
+
+        </div>
     </header>
 
     <div class="container">
@@ -257,234 +297,321 @@
     </div>
 
     <script>
-        const db = {
-            tech: [
-                { id: 101, name: 'MacBook Pro 14"', basePrice: 1000000, image: 'https://via.placeholder.com/150/e10600/FFFFFF?Text=Mac', options: { specs: 'M3, 16GB RAM, 512GB SSD'} },
-                { id: 102, name: 'MacBook Pro 16"', basePrice: 1400000, image: 'https://via.placeholder.com/150/e10600/FFFFFF?Text=Mac', options: { specs: 'M3 Pro, 18GB RAM, 1TB SSD'} },
-                { id: 103, name: 'MacBook Air 15"', basePrice: 800000, image: 'https://via.placeholder.com/150/e10600/FFFFFF?Text=Mac', options: { specs: 'M2, 8GB RAM, 256GB SSD'} },
-                { id: 104, name: 'Lenovo Legion Slim', basePrice: 900000, image: 'https://via.placeholder.com/150/444444/FFFFFF?Text=Lenovo', options: { colors: { 'Черный': 0, 'Серый': 50000 }, specs: 'Core i7, 16GB RAM, 1TB SSD' } },
-                { id: 105, name: 'Lenovo Yoga 7', basePrice: 750000, image: 'https://via.placeholder.com/150/444444/FFFFFF?Text=Lenovo', options: { colors: { 'Черный': 0, 'Серый': 30000 }, specs: 'Ryzen 7, 16GB RAM, 512GB SSD' } },
-                { id: 106, name: 'Lenovo IdeaPad 3', basePrice: 400000, image: 'https://via.placeholder.com/150/444444/FFFFFF?Text=Lenovo', options: { colors: { 'Черный': 0, 'Серый': 15000 }, specs: 'Core i5, 8GB RAM, 512GB SSD' } },
-                { id: 107, name: 'iPhone 16', basePrice: 700000, image: 'https://via.placeholder.com/150/111/FFFFFF?Text=iPhone', options: { colors: { 'Natural Titanium': 0, 'Blue Titanium': 0 }, specs: 'A18 Bionic Chip' } },
-                { id: 108, name: 'iPhone 12', basePrice: 300000, image: 'https://via.placeholder.com/150/111/FFFFFF?Text=iPhone', options: { colors: { 'Черный': 0, 'Белый': 0 }, specs: 'A14 Bionic Chip' } },
-            ],
-            digital: [
-                { id: 201, name: 'Книга "Мастер и Маргарита"', basePrice: 2000, image: 'https://via.placeholder.com/150/ffd700/000000?Text=Book', options: { specs: 'Автор: М. Булгаков, Формат: ePub' } },
-                { id: 202, name: 'Книга "1984"', basePrice: 1800, image: 'https://via.placeholder.com/150/ffd700/000000?Text=Book', options: { specs: 'Автор: Дж. Оруэлл, Формат: ePub' } },
-                { id: 203, name: 'Книга "Преступление и наказание"', basePrice: 1900, image: 'https://via.placeholder.com/150/ffd700/000000?Text=Book', options: { specs: 'Автор: Ф. Достоевский, Формат: ePub' } },
-                { id: 204, name: 'Сказки братьев Гримм', basePrice: 1500, image: 'https://via.placeholder.com/150/ffd700/000000?Text=FairyTale', options: { specs: 'Сборник, Формат: PDF' } },
-                { id: 205, name: 'Сказки Г.Х. Андерсена', basePrice: 1600, image: 'https://via.placeholder.com/150/ffd700/000000?Text=FairyTale', options: { specs: 'Сборник, Формат: PDF' } },
-                { id: 206, name: 'Русские народные сказки', basePrice: 1400, image: 'https://via.placeholder.com/150/ffd700/000000?Text=FairyTale', options: { specs: 'Сборник, Формат: ePub' } },
-            ],
-            accessories: [
-                { id: 301, name: 'Чехол для MacBook Pro 14"', basePrice: 15000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Case' },
-                { id: 302, name: 'Чехол для iPhone 17', basePrice: 10000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Case' },
-                { id: 303, name: 'Сумка для ноутбука 15"', basePrice: 25000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Bag' },
-                { id: 304, name: 'USB-C хаб', basePrice: 30000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Hub' },
-                { id: 305, name: 'Беспроводная мышь', basePrice: 20000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Mouse' },
-                { id: 306, name: 'Механическая клавиатура', basePrice: 60000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=KB' },
-                { id: 307, name: 'Кожаный чехол для Lenovo', basePrice: 18000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Case' },
-                { id: 308, name: 'Защитное стекло для iPhone', basePrice: 5000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Glass' },
-                { id: 309, name: 'Рюкзак для техники', basePrice: 45000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Bag' },
-                { id: 310, name: 'Портативный аккумулятор', basePrice: 35000, image: 'https://via.placeholder.com/150/888/FFFFFF?Text=Power' },
-            ],
-            gifts: [
-                { id: 401, name: 'Новогодняя толстовка', basePrice: 20000, image: 'https://via.placeholder.com/150/00F/FFFFFF?Text=Gift', options: { print: true } },
-                { id: 402, name: 'Новогодняя кружка', basePrice: 8000, image: 'https://via.placeholder.com/150/00F/FFFFFF?Text=Gift', options: { print: true } },
-                { id: 403, name: 'Новогодняя футболка', basePrice: 12000, image: 'https://via.placeholder.com/150/00F/FFFFFF?Text=Gift', options: { print: true } },
-            ]
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const db = {
+                tech: [
+                    {
+                        id: 101, name: 'MacBook Pro 14"', basePrice: 1000000,
+                        image: 'frontend/images/MacBook Pro 14.jpg',
+                        options: {
+                            specs: 'M3, 16GB RAM, 512GB SSD',
+                            designs: {
+                                'Дизайн 1': { price: 0, image: 'frontend/images/MacBook Pro 14.jpg' },
+                                'Дизайн 2': { price: 0, image: 'frontend/images/MacBook Pro 14 2.jpg' },
+                                'Дизайн 3': { price: 0, image: 'frontend/images/MacBook Pro 14 3.jpg' },
+                                'Дизайн 4': { price: 0, image: 'frontend/images/MacBook Pro 14 4.jpg' }
+                            }
+                        }
+                    },
+                    {
+                        id: 102, name: 'MacBook Pro 16"', basePrice: 1400000,
+                        image: 'frontend/images/MacBook Pro 16.jpg',
+                        options: {
+                            specs: 'M3 Pro, 18GB RAM, 1TB SSD',
+                            designs: {
+                                'Дизайн 1': { price: 0, image: 'frontend/images/MacBook Pro 16.jpg' },
+                                'Дизайн 2': { price: 0, image: 'frontend/images/MacBook Pro 16 2.jpg' },
+                                'Дизайн 3': { price: 0, image: 'frontend/images/MacBook Pro 16 3.jpg' },
+                                'Дизайн 4': { price: 0, image: 'frontend/images/MacBook Pro 16 4.jpg' }
+                            }
+                        }
+                    },
+                    { id: 103, name: 'MacBook Air 15"', basePrice: 800000, image: 'frontend/images/MacBook Pro 15 .png', options: { specs: 'M2, 8GB RAM, 256GB SSD'} },
+                    { id: 105, name: 'Lenovo Yoga 7', basePrice: 750000, image: 'frontend/images/Lenovo Yoga 7 .png', options: { colors: { 'Черный': 0, 'Серый': 30000 }, specs: 'Ryzen 7, 16GB RAM, 512GB SSD' } },
+                    { id: 107, name: 'iPhone 16', basePrice: 700000, image: 'frontend/images/iphone 16 1.png', options: { colors: { 'Natural Titanium': 0, 'Blue Titanium': 0 }, specs: 'A18 Bionic Chip' } },
+                    { id: 108, name: 'iPhone 12', basePrice: 300000, image: 'frontend/images/iphone 12 .png', options: { colors: { 'Черный': 0, 'Белый': 0 }, specs: 'A14 Bionic Chip' } },
+                ],
+                digital: [
+                    { id: 201, name: 'Книга "Мастер и Маргарита"', basePrice: 2000, image: 'frontend/images/Книга Мастер и Маргарита.webp', options: { specs: 'Автор: М. Булгаков, Формат: ePub' } },
+                    { id: 202, name: 'Книга "1984"', basePrice: 1800, image: 'frontend/images/Книга 1984.webp', options: { specs: 'Автор: Дж. Оруэлл, Формат: ePub' } },
+                    { id: 203, name: 'Книга "Преступление и наказание"', basePrice: 1900, image: 'frontend/images/Книга Преступление и наказание.webp', options: { specs: 'Автор: Ф. Достоевский, Формат: ePub' } },
+                    { id: 204, name: 'Сказки братьев Гримм', basePrice: 1500, image: 'frontend/images/Сказки братьев Гримм.webp', options: { specs: 'Сборник, Формат: PDF' } },
+                    { id: 205, name: 'Сказки Г.Х. Андерсена', basePrice: 1600, image: 'frontend/images/Сказки Г.Х. Андерсена.webp', options: { specs: 'Сборник, Формат: PDF' } },
+                    { id: 206, name: 'Русские народные сказки', basePrice: 1400, image: 'frontend/images/Русские народные сказки.webp', options: { specs: 'Сборник, Формат: ePub' } },
+                ],
+                accessories: [
+                    { id: 301, name: 'Чехол для MacBook Pro 14"', basePrice: 15000, image: 'frontend/images/Чехол для MacBook Pro 14.webp' },
+                    { id: 302, name: 'Чехол для iPhone 17', basePrice: 10000, image: 'frontend/images/Чехол для iPhone 17.webp' },
+                    { id: 303, name: 'Сумка для ноутбука 15"', basePrice: 25000, image: 'frontend/images/Сумка для ноутбука 15.webp' },
+                    { id: 304, name: 'USB-C хаб', basePrice: 30000, image: 'frontend/images/USB-C хаб.png' },
+                    { id: 305, name: 'Беспроводная мышь', basePrice: 20000, image: 'frontend/images/Беспроводная мышь.webp' },
+                    { id: 306, name: 'Механическая клавиатура', basePrice: 60000, image: 'frontend/images/Механическая клавиатура.png' },
+                    { id: 307, name: 'Кожаный чехол для Lenovo', basePrice: 18000, image: 'frontend/images/Кожаный чехол для Lenovo.webp' },
+                    { id: 308, name: 'Защитное стекло для iPhone', basePrice: 5000, image: 'frontend/images/Защитное стекло для iPhone.webp' },
+                    { id: 309, name: 'Рюкзак для техники', basePrice: 45000, image: 'frontend/images/Рюкзак для техники.png' },
+                    { id: 310, name: 'Портативный аккумулятор', basePrice: 35000, image: 'frontend/images/Портативный аккумулятор.png' },
+                ],
+                gifts: [
+                    { id: 401, name: 'Новогодняя толстовка', basePrice: 20000, image: 'frontend/images/Новогодняя толстовка.webp', options: { print: true } },
+                    { id: 402, name: 'Новогодняя кружка', basePrice: 8000, image: 'frontend/images/Новогодняя кружка.webp', options: { print: true } },
+                    { id: 403, name: 'Новогодняя футболка', basePrice: 12000, image: 'frontend/images/Новогодняя футболка.webp', options: { print: true } },
+                ]
+            };
 
-        const cart = [];
-        const productsGrid = document.getElementById('products-grid');
-        const categoriesNav = document.getElementById('categories-nav');
-        
-        function renderProducts(category) {
-            productsGrid.innerHTML = '';
-            const products = db[category] || [];
+            const cart = [];
+            const productsGrid = document.getElementById('products-grid');
+            const categoriesNav = document.getElementById('categories-nav');
             
-            products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                
-                let optionsHTML = '';
-                if (product.options && product.options.colors) {
-                    optionsHTML += `<select id="color-${product.id}" onchange="updatePrice(${product.id})">`;
-                    Object.keys(product.options.colors).forEach(color => {
-                        optionsHTML += `<option value="${product.options.colors[color]}">${color}</option>`;
-                    });
-                    optionsHTML += `</select>`;
+            function findProductById(productId) {
+                 for (const category in db) {
+                    const found = db[category].find(p => p.id === productId);
+                    if (found) return found;
                 }
-                
-                if (product.options && product.options.print) {
-                    optionsHTML += `<label style="font-size: 0.9em; margin-top: 10px; display: block;">Загрузите фото для принта:</label><input type="file" id="print-${product.id}">`;
+                return null;
+            }
+
+            function updateProduct(productId) {
+                const product = findProductById(productId);
+                if (!product) return;
+
+                const card = productsGrid.querySelector(`.product-card[data-product-id='${productId}']`);
+                const priceEl = document.getElementById(`price-${productId}`);
+                const imageEl = card.querySelector('img');
+
+                let finalPrice = product.basePrice;
+
+                const colorSelector = document.getElementById(`color-${productId}`);
+                if (colorSelector) {
+                    finalPrice += parseInt(colorSelector.value, 10);
                 }
 
-                let specsHTML = '';
-                if (product.options && product.options.specs) {
-                    specsHTML = `<p class="product-specs">${product.options.specs}</p>`;
+                const designSelector = document.getElementById(`design-${productId}`);
+                if (designSelector) {
+                    const selectedOption = designSelector.options[designSelector.selectedIndex];
+                    finalPrice += parseInt(selectedOption.dataset.price, 10);
+                    if (imageEl) {
+                        imageEl.src = selectedOption.dataset.image;
+                    }
                 }
                 
-                card.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}" class="placeholder-img" style="object-fit: contain;">
-                    <h3>${product.name}</h3>
-                    ${specsHTML}
-                    <div class="product-options">${optionsHTML}</div>
-                    <p>Цена: <span id="price-${product.id}">${product.basePrice.toLocaleString()}</span> KZT</p>
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})">Добавить в корзину</button>
-                `;
-                productsGrid.appendChild(card);
+                if(priceEl) {
+                    priceEl.textContent = finalPrice.toLocaleString();
+                }
+            }
+            
+            function addToCart(productId) {
+                const product = findProductById(productId);
+                if (!product) return;
+
+                let finalPrice = product.basePrice;
+                let selectedOptionText = '';
+                let uniqueId = String(product.id);
+                let image = product.image;
+
+                const colorSelector = document.getElementById(`color-${productId}`);
+                if (colorSelector) {
+                    finalPrice += parseInt(colorSelector.value, 10);
+                    selectedOptionText = ` (${colorSelector.options[colorSelector.selectedIndex].text})`;
+                    uniqueId += '-' + colorSelector.options[colorSelector.selectedIndex].text;
+                }
+
+                const designSelector = document.getElementById(`design-${productId}`);
+                if (designSelector) {
+                    const selectedOption = designSelector.options[designSelector.selectedIndex];
+                    finalPrice += parseInt(selectedOption.dataset.price, 10);
+                    selectedOptionText = ` (${selectedOption.text})`;
+                    uniqueId += '-' + selectedOption.text;
+                    image = selectedOption.dataset.image;
+                }
+
+                const printFile = document.getElementById(`print-${productId}`);
+                if (printFile && printFile.files.length > 0) {
+                     selectedOptionText += ` (с принтом)`;
+                     uniqueId += '-print';
+                }
+                
+                const existingItem = cart.find(item => item.uniqueId === uniqueId);
+
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    const cartItem = {
+                        uniqueId: uniqueId,
+                        id: product.id,
+                        name: product.name + selectedOptionText,
+                        price: finalPrice,
+                        quantity: 1,
+                        image: image
+                    };
+                    cart.push(cartItem);
+                }
+                
+                updateCart();
+                alert(`${product.name + selectedOptionText} добавлен в корзину!`);
+            }
+
+            function renderProducts(category) {
+                productsGrid.innerHTML = '';
+                const products = db[category] || [];
+                
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.setAttribute('data-product-id', product.id);
+                    
+                    let optionsHTML = '';
+                    if (product.options && product.options.colors) {
+                        optionsHTML += `<select class="product-color-selector" id="color-${product.id}">`;
+                        Object.keys(product.options.colors).forEach(color => {
+                            optionsHTML += `<option value="${product.options.colors[color]}">${color}</option>`;
+                        });
+                        optionsHTML += `</select>`;
+                    }
+
+                    if (product.options && product.options.designs) {
+                        optionsHTML += `<select class="product-design-selector" id="design-${product.id}">`;
+                        Object.keys(product.options.designs).forEach(design => {
+                            const designData = product.options.designs[design];
+                            optionsHTML += `<option value="${design}" data-price="${designData.price}" data-image="${designData.image}">${design}</option>`;
+                        });
+                        optionsHTML += `</select>`;
+                    }
+                    
+                    if (product.options && product.options.print) {
+                        optionsHTML += `<label style="font-size: 0.9em; margin-top: 10px; display: block;">Загрузите фото для принта:</label><input type="file" id="print-${product.id}">`;
+                    }
+
+                    let specsHTML = '';
+                    if (product.options && product.options.specs) {
+                        specsHTML = `<p class="product-specs">${product.options.specs}</p>`;
+                    }
+                    
+                    card.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                        <h3>${product.name}</h3>
+                        ${specsHTML}
+                        <div class="product-options">${optionsHTML}</div>
+                        <p>Цена: <span id="price-${product.id}">${product.basePrice.toLocaleString()}</span> KZT</p>
+                        <button class="add-to-cart-btn">Добавить в корзину</button>
+                    `;
+
+                    const addToCartButton = card.querySelector('.add-to-cart-btn');
+                    if (addToCartButton) {
+                        addToCartButton.addEventListener('click', () => addToCart(product.id));
+                    }
+
+                    const designSelector = card.querySelector('.product-design-selector');
+                    if (designSelector) {
+                        designSelector.addEventListener('change', () => updateProduct(product.id));
+                    }
+
+                    const colorSelector = card.querySelector('.product-color-selector');
+                    if (colorSelector) {
+                        colorSelector.addEventListener('change', () => updateProduct(product.id));
+                    }
+
+                    productsGrid.appendChild(card);
+                });
+            }
+            
+            function changeQuantity(uniqueId, change) {
+                const item = cart.find(i => i.uniqueId === uniqueId);
+                if (!item) return;
+
+                item.quantity += change;
+
+                if (item.quantity <= 0) {
+                    const itemIndex = cart.findIndex(i => i.uniqueId === uniqueId);
+                    cart.splice(itemIndex, 1);
+                }
+                updateCart();
+            }
+
+            function updateCart() {
+                const floatingCartCountEl = document.getElementById('floating-cart-count');
+                const cartItemsEl = document.getElementById('cart-items');
+                const subtotalEl = document.getElementById('cart-subtotal');
+                const taxEl = document.getElementById('cart-tax');
+                const shippingEl = document.getElementById('cart-shipping');
+                const totalEl = document.getElementById('cart-total');
+
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                if (floatingCartCountEl) {
+                    floatingCartCountEl.textContent = totalItems;
+                }
+                cartItemsEl.innerHTML = '';
+                
+                let subtotal = 0;
+                cart.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                    const li = document.createElement('li');
+                    li.className = 'cart-item';
+                    li.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-info">
+                            ${item.name}<br>
+                            <small>${item.price.toLocaleString()} KZT</small>
+                        </div>
+                        <div class="cart-item-quantity">
+                            <button onclick="changeQuantity('${item.uniqueId}', -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="changeQuantity('${item.uniqueId}', 1)">+</button>
+                        </div>
+                    `;
+                    cartItemsEl.appendChild(li);
+                });
+
+                // Add free gift
+                if (cart.length > 0) {
+                    const li = document.createElement('li');
+                    li.className = 'cart-item';
+                    li.style.opacity = '0.7';
+                    li.innerHTML = `<img src="frontend/images/Новогодний шар.webp" alt="Gift"><div class="cart-item-info"><em>Подарок: Новогодний шар</em></div><div>0 KZT</div>`;
+                    cartItemsEl.appendChild(li);
+                }
+                
+
+                const tax = subtotal * 0.12; // 12% tax
+                const shipping = 500; // Flat rate shipping
+                const total = subtotal + tax + shipping;
+                
+                subtotalEl.textContent = subtotal.toLocaleString();
+                taxEl.textContent = tax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                shippingEl.textContent = shipping.toLocaleString();
+                totalEl.textContent = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+
+            // Initial Setup
+            if (categoriesNav) {
+                const firstCategory = categoriesNav.querySelector('a');
+                if (firstCategory) {
+                    firstCategory.classList.add('active');
+                    renderProducts(firstCategory.dataset.category);
+                }
+
+                categoriesNav.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'A') {
+                        e.preventDefault();
+                        const category = e.target.dataset.category;
+                        document.querySelectorAll('#categories-nav a').forEach(a => a.classList.remove('active'));
+                        e.target.classList.add('active');
+                        renderProducts(category);
+                    }
+                });
+            }
+            
+            document.getElementById('floating-cart-button').addEventListener('click', () => {
+                 updateCart();
+                 document.getElementById('cart-modal').style.display = 'block';
             });
-        }
-        
-        function updatePrice(productId) {
-            const product = findProductById(productId);
-            if (!product) return;
-            
-            const priceEl = document.getElementById(`price-${productId}`);
-            const colorSelector = document.getElementById(`color-${productId}`);
-            
-            let finalPrice = product.basePrice;
-            if (colorSelector) {
-                finalPrice += parseInt(colorSelector.value, 10);
-            }
-            
-            priceEl.textContent = finalPrice.toLocaleString();
-        }
-        
-        function findProductById(productId) {
-             for (const category in db) {
-                const found = db[category].find(p => p.id === productId);
-                if (found) return found;
-            }
-            return null;
-        }
 
-        function addToCart(productId) {
-            const product = findProductById(productId);
-            if (!product) return;
-
-            const colorSelector = document.getElementById(`color-${productId}`);
-            let finalPrice = product.basePrice;
-            let selectedOptionText = '';
-            let uniqueId = product.id;
-
-            if (colorSelector) {
-                finalPrice += parseInt(colorSelector.value, 10);
-                selectedOptionText = ` (${colorSelector.options[colorSelector.selectedIndex].text})`;
-                uniqueId += '-' + colorSelector.options[colorSelector.selectedIndex].text;
-            }
-
-            const printFile = document.getElementById(`print-${productId}`);
-            if (printFile && printFile.files.length > 0) {
-                 selectedOptionText += ` (с принтом)`;
-                 uniqueId += '-print';
-            }
-            
-            const existingItem = cart.find(item => item.uniqueId === uniqueId);
-
-            if (existingItem) {
-                existingItem.quantity++;
-            } else {
-                const cartItem = {
-                    uniqueId: uniqueId,
-                    id: product.id,
-                    name: product.name + selectedOptionText,
-                    price: finalPrice,
-                    quantity: 1,
-                    image: product.image
-                };
-                cart.push(cartItem);
-            }
-            
-            updateCart();
-            alert(`${product.name + selectedOptionText} добавлен в корзину!`);
-        }
-
-        function changeQuantity(uniqueId, change) {
-            const item = cart.find(i => i.uniqueId === uniqueId);
-            if (!item) return;
-
-            item.quantity += change;
-
-            if (item.quantity <= 0) {
-                const itemIndex = cart.findIndex(i => i.uniqueId === uniqueId);
-                cart.splice(itemIndex, 1);
-            }
-            updateCart();
-        }
-
-        function updateCart() {
-            const cartButton = document.getElementById('cart-button');
-            const cartItemsEl = document.getElementById('cart-items');
-            const subtotalEl = document.getElementById('cart-subtotal');
-            const taxEl = document.getElementById('cart-tax');
-            const shippingEl = document.getElementById('cart-shipping');
-            const totalEl = document.getElementById('cart-total');
-
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            cartButton.textContent = `Корзина (${totalItems})`;
-            cartItemsEl.innerHTML = '';
-            
-            let subtotal = 0;
-            cart.forEach(item => {
-                subtotal += item.price * item.quantity;
-                const li = document.createElement('li');
-                li.className = 'cart-item';
-                li.innerHTML = `
-                    <img src="${item.image}" alt="${item.name}">
-                    <div class="cart-item-info">
-                        ${item.name}<br>
-                        <small>${item.price.toLocaleString()} KZT</small>
-                    </div>
-                    <div class="cart-item-quantity">
-                        <button onclick="changeQuantity('${item.uniqueId}', -1)">-</button>
-                        <span>${item.quantity}</span>
-                        <button onclick="changeQuantity('${item.uniqueId}', 1)">+</button>
-                    </div>
-                `;
-                cartItemsEl.appendChild(li);
-            });
-
-            // Add free gift
-            if (cart.length > 0) {
-                const li = document.createElement('li');
-                li.className = 'cart-item';
-                li.style.opacity = '0.7';
-                li.innerHTML = `<img src="https://via.placeholder.com/60/FF0000/FFFFFF?Text=F1" alt="Gift"><div class="cart-item-info"><em>Подарок: Новогодний шар</em></div><div>0 KZT</div>`;
-                cartItemsEl.appendChild(li);
-            }
-            
-
-            const tax = subtotal * 0.12; // 12% tax
-            const shipping = 500; // Flat rate shipping
-            const total = subtotal + tax + shipping;
-            
-            subtotalEl.textContent = subtotal.toLocaleString();
-            taxEl.textContent = tax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            shippingEl.textContent = shipping.toLocaleString();
-            totalEl.textContent = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
-
-        categoriesNav.addEventListener('click', (e) => {
-            if (e.target.tagName === 'A') {
-                e.preventDefault();
-                const category = e.target.dataset.category;
-                document.querySelectorAll('#categories-nav a').forEach(a => a.classList.remove('active'));
-                e.target.classList.add('active');
-                renderProducts(category);
-            }
+            // Expose functions to global scope for cart quantity buttons
+            window.changeQuantity = changeQuantity;
         });
-        
-        document.getElementById('cart-button').addEventListener('click', () => {
-             updateCart();
-             document.getElementById('cart-modal').style.display = 'block';
-        });
-
-        // Initial render
-        document.querySelector('#categories-nav a').classList.add('active');
-        renderProducts('tech');
-
     </script>
+    <button id="floating-cart-button" class="floating-cart-button" onclick="document.getElementById('cart-modal').style.display='block'">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="floating-cart-count">0</span>
+    </button>
 </body>
 </html>
