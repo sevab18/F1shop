@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #111827;
+            --accent: #e10600;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --border: #1f2937;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Inter", "Space Grotesk", system-ui, -apple-system, sans-serif;
+            background: linear-gradient(rgba(15,23,42,0.72), rgba(15,23,42,0.9)), url("/images/download-25.jpg") center/cover fixed no-repeat;
+            color: var(--text);
+            min-height: 100vh;
+        }
+        header {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 1200;
+            background: rgba(15,23,42,0.65);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .logo small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; letter-spacing: 0; }
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            transition: 0.15s ease;
+        }
+        nav a.active, nav a:hover {
+            color: var(--text);
+            border-color: var(--border);
+            background: rgba(255,255,255,0.03);
+        }
+        .burger {
+            display: none;
+            width: 42px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(17,24,39,0.8);
+            color: var(--text);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .burger span {
+            display: block;
+            width: 18px;
+            height: 2px;
+            background: var(--text);
+            position: relative;
+        }
+        .burger span::before, .burger span::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            width: 18px;
+            height: 2px;
+            background: var(--text);
+        }
+        .burger span::before { top: -6px; }
+        .burger span::after { top: 6px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+        }
+        .card h3 { margin: 0; }
+        .muted { color: var(--muted); font-size: 0.9rem; }
+        select, button, input {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #0b1220;
+            color: var(--text);
+        }
+        .btn {
+            background: linear-gradient(90deg, var(--accent), #ff4f3a);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(225,6,0,0.3); }
+        .floating-cart {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(225,6,0,0.35);
+            z-index: 1100;
+        }
+        .floating-cart span {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: #fff;
+            color: var(--accent);
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+        }
+        dialog {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card);
+            color: var(--text);
+            max-width: 780px;
+            width: 90%;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+        .totals { text-align: right; }
+        .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #1f2937; color: var(--muted); font-size: 0.8rem; }
+        .image-box { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #0b1220; }
+        .image-box img { width: 100%; display: block; }
+        .thumbs { display: flex; gap: 6px; }
+        .thumbs img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; opacity: 0.8; }
+        .thumbs img.active { opacity: 1; border-color: var(--accent); }
+        /* Host banner with spider drop effect */
+        #host-banner {
+            position: fixed;
+            top: -140px;
+            right: 20px;
+            background: rgba(15,23,42,0.9);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            animation: drop-in 2.2s ease forwards;
+            z-index: 1250;
+        }
+        #host-banner .spider { font-size: 22px; color: var(--accent); }
+        #host-banner button { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; cursor: pointer; padding: 4px 8px; }
+        @keyframes drop-in { 0% { transform: translateY(-150px); opacity: 0; } 60% { transform: translateY(10px); opacity: 1; } 80% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
+        /* Ticker */
+        #ticker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(15,23,42,0.9);
+            color: var(--text);
+            padding: 8px 0;
+            overflow: hidden;
+            border-top: 1px solid var(--border);
+            z-index: 1100;
+        }
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            white-space: nowrap;
+            animation: ticker 42s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        @media (max-width: 960px) {
+            nav {
+                position: fixed;
+                top: 68px;
+                right: 16px;
+                background: rgba(15,23,42,0.95);
+                padding: 12px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                flex-direction: column;
+                align-items: flex-start;
+                display: none;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            }
+            nav.open { display: flex; }
+            .burger { display: inline-flex; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-flag-checkered"></i>
+            <div>
+                <div>F1Shop</div>
+                <small>Техника · Цифра · Мерч</small>
+            </div>
+        </div>
+        <button class="burger" id="burger" aria-label="Меню"><span></span></button>
+        <nav id="categories"></nav>
+    </header>
+
+    <div id="host-banner" aria-label="Localhost notice">
+        <div class="spider"><i class="fas fa-spider"></i></div>
+        <div>
+            <strong>Локальный стенд</strong><br>
+            http://localhost:8080 — тестируем спокойно
+        </div>
+        <button onclick="document.getElementById('host-banner').style.display='none'">×</button>
+    </div>
+
+    <div class="container">
+        <h2 style="margin:0 0 12px 0;">Все товары</h2>
+        <div class="muted" style="margin-bottom:16px;">Выбирайте технику, цифровые продукты, аксессуары или мерч. Самовывоз — бесплатно.</div>
+        <div id="products" class="grid"></div>
+    </div>
+
+    <section class="container" id="stores" style="margin-top:20px; margin-bottom:80px;">
+        <h3 style="margin:0 0 12px 0;">Адреса магазинов</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+            <div class="card" style="padding:12px;">Алматы: ул. Абая, 10</div>
+            <div class="card" style="padding:12px;">Астана: пр. Достык, 5</div>
+            <div class="card" style="padding:12px;">Шымкент: пр. Тауке хана, 20</div>
+            <div class="card" style="padding:12px;">Актобе: ул. Алиева, 8</div>
+            <div class="card" style="padding:12px;">Караганда: пр. Бухар-Жырау, 15</div>
+            <div class="card" style="padding:12px;">Тараз: ул. Толе би, 12</div>
+            <div class="card" style="padding:12px;">Павлодар: ул. Ломова, 3</div>
+            <div class="card" style="padding:12px;">Усть-Каменогорск: пр. Назарбаева, 4</div>
+            <div class="card" style="padding:12px;">Семей: ул. Момышулы, 6</div>
+            <div class="card" style="padding:12px;">Костанай: пр. Абая, 9</div>
+            <div class="card" style="padding:12px;">Кызылорда: ул. Байтурсынова, 7</div>
+            <div class="card" style="padding:12px;">Уральск: пр. Евразия, 21</div>
+            <div class="card" style="padding:12px;">Петропавловск: ул. Конституции, 18</div>
+            <div class="card" style="padding:12px;">Актау: 12 мкр, д.5</div>
+            <div class="card" style="padding:12px;">Атырау: ул. Сатпаева, 14</div>
+            <div class="card" style="padding:12px;">Талдыкорган: ул. Абылай хана, 2</div>
+        </div>
+    </section>
+
+    <button class="floating-cart" id="cart-button" title="Корзина">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cart-count">0</span>
+    </button>
+
+    <dialog id="cart-dialog">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="margin:0;">Корзина</h3>
+            <button onclick="closeCart()">×</button>
+        </div>
+        <div id="cart-body" class="muted" style="margin:12px 0;">Здесь пока пусто.</div>
+        <div id="cart-totals"></div>
+    </dialog>
+
+    <div id="ticker">
+        <div class="ticker-text">С Новым 2026 годом! Желаем быстрых доставок, удачных скидок и ярких покупок в F1Shop ✨</div>
+    </div>
+
+    <footer style="background:#0b1220;border-top:1px solid var(--border);padding:20px;margin-top:60px;">
+        <div class="container" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;color:var(--muted);">
+            <div><strong>F1Shop</strong><br>Контакты: support@f1shop.kz</div>
+            <div>Instagram: <a href="https://instagram.com/f1shop" style="color:var(--text);text-decoration:none;">@f1shop</a></div>
+            <div>Телефон: +7 (700) 000-00-00</div>
+        </div>
+    </footer>
+
+    <script>
+        const productsGrid = document.getElementById('products');
+        const categoriesNav = document.getElementById('categories');
+        const cartDialog = document.getElementById('cart-dialog');
+        const cartBody = document.getElementById('cart-body');
+        const cartTotals = document.getElementById('cart-totals');
+        const cartCountEl = document.getElementById('cart-count');
+        const burger = document.getElementById('burger');
+
+        let catalog = {};
+        let cart = [];
+        let deliveryChoice = 'Курьер по городу';
+        let loadedCategories = [];
+
+        async function fetchJson(url, options) {
+            const resp = await fetch(url, options);
+            if (!resp.ok) throw new Error('API error: ' + resp.status);
+            return await resp.json();
+        }
+
+        function renderNav() {
+            categoriesNav.innerHTML = '';
+            const navItems = [
+                { id: 'all', name: 'Все товары', type: 'category' },
+                ...loadedCategories.map(c => ({ id: c.id, name: c.name, type: 'category' })),
+                { id: 'stores', name: 'Магазины', type: 'anchor', href: '#stores' }
+            ];
+            navItems.forEach((c, idx) => {
+                const a = document.createElement('a');
+                a.href = c.type === 'anchor' ? c.href : '#';
+                a.textContent = c.name;
+                a.dataset.id = c.id;
+                if (idx === 0) a.classList.add('active');
+                a.addEventListener('click', (e) => {
+                    if (c.type === 'category') {
+                        e.preventDefault();
+                        document.querySelectorAll('#categories a').forEach(n => n.classList.remove('active'));
+                        a.classList.add('active');
+                        loadProducts(c.id);
+                    } else if (c.type === 'anchor') {
+                        e.preventDefault();
+                        document.querySelectorAll('#categories a').forEach(n => n.classList.remove('active'));
+                        a.classList.add('active');
+                        document.querySelector(c.href).scrollIntoView({ behavior: 'smooth' });
+                    }
+                    categoriesNav.classList.remove('open');
+                });
+                categoriesNav.appendChild(a);
+            });
+        }
+
+        async function loadCategories() {
+            const data = await fetchJson('/api/categories');
+            loadedCategories = data;
+            renderNav();
+            loadProducts('all');
+        }
+
+        async function loadProducts(categoryId) {
+            const list = await fetchJson('/api/products?category=' + encodeURIComponent(categoryId));
+            renderProducts(list);
+            list.forEach(p => catalog[p.id] = p);
+        }
+
+        function renderProducts(list) {
+            productsGrid.innerHTML = '';
+            list.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                const hasColors = p.colors && Object.keys(p.colors).length > 0;
+                const hasPrint = p.printAvailable;
+                const images = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+                const mainImg = images[0] || '';
+                const colorSelect = hasColors ? `
+                    <label class="muted">Цвет</label>
+                    <select data-product="${p.id}" class="color-select">
+                        ${Object.entries(p.colors).map(([k,v]) => `<option value="${k}">${k} (+${v}₸)</option>`).join('')}
+                    </select>
+                ` : '';
+                const printOpt = hasPrint ? `
+                    <label style="display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" data-print="${p.id}"> Печать/нанесение
+                    </label>
+                ` : '';
+                card.innerHTML = `
+                    <div class="pill">${p.categoryId}</div>
+                    <div class="image-box">
+                        ${mainImg ? `<img src="${mainImg}" alt="${p.name}" data-main="${p.id}">` : ''}
+                    </div>
+                    ${images.length > 1 ? `<div class="thumbs">
+                        ${images.map((img, idx) => `<img src="${img}" class="${idx===0 ? 'active' : ''}" data-thumb="${p.id}" data-img="${img}">`).join('')}
+                    </div>` : ''}
+                    <h3>${p.name}</h3>
+                    <div class="muted">${p.specs || p.description || ''}</div>
+                    <div class="muted">Цена: ${p.basePrice.toLocaleString()} ₸</div>
+                    ${colorSelect}
+                    ${printOpt}
+                    <button class="btn" data-add="${p.id}">В корзину</button>
+                `;
+                card.querySelector('[data-add]').addEventListener('click', () => addToCart(p.id));
+                card.querySelectorAll('[data-thumb]').forEach(t => {
+                    t.addEventListener('click', (e) => {
+                        const img = e.target.getAttribute('data-img');
+                        const main = card.querySelector(`[data-main="${p.id}"]`);
+                        if (main) main.src = img;
+                        card.querySelectorAll('[data-thumb]').forEach(th => th.classList.remove('active'));
+                        e.target.classList.add('active');
+                    });
+                });
+                productsGrid.appendChild(card);
+            });
+        }
+
+        function addToCart(productId) {
+            const product = catalog[productId];
+            if (!product) return;
+            const colorSelect = document.querySelector(`.color-select[data-product="${productId}"]`);
+            const selectedColor = colorSelect ? colorSelect.value : null;
+            const printCheckbox = document.querySelector(`input[data-print="${productId}"]`);
+            const withPrint = printCheckbox ? printCheckbox.checked : false;
+
+            const existing = cart.find(c => c.productId === productId && c.color === selectedColor && c.withPrint === withPrint);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ productId, quantity: 1, color: selectedColor, withPrint });
+            }
+            cartCountEl.textContent = cart.reduce((s,i)=>s+i.quantity, 0);
+        }
+
+        function closeCart() {
+            cartDialog.close();
+        }
+
+        async function openCart() {
+            if (cart.length === 0) {
+                cartBody.textContent = 'Корзина пуста.';
+                cartTotals.innerHTML = '';
+                cartDialog.showModal();
+                return;
+            }
+            await priceAndRender();
+            cartDialog.showModal();
+        }
+
+        async function priceAndRender() {
+            const payload = { items: cart, delivery: deliveryChoice };
+            const priced = await fetchJson('/api/cart/price', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            renderCart(priced);
+        }
+
+        function renderCart(priced) {
+            cartBody.innerHTML = `<table>
+                <thead><tr><th>Товар</th><th>Кол-во</th><th>Скидка</th><th>Сумма</th></tr></thead>
+                <tbody>
+                    ${priced.items.map(i => `
+                        <tr>
+                            <td style="display:flex;align-items:center;gap:8px;">
+                                ${i.image ? `<img src="${i.image}" alt="${i.name}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--border);">` : ''}
+                                <div>
+                                    ${i.name}<div class="muted">${i.appliedPolicy}</div>
+                                </div>
+                            </td>
+                            <td>${i.quantity}</td>
+                            <td>${i.discountApplied.toLocaleString()} ₸</td>
+                            <td>${i.total.toLocaleString()} ₸</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>`;
+
+            cartTotals.innerHTML = `
+                <div class="totals muted">Промежуточный итог: ${priced.subtotal.toLocaleString()} ₸</div>
+                ${priced.promoDiscount ? `<div class="totals muted">Скидка (3-й товар -50%): -${priced.promoDiscount.toLocaleString()} ₸</div>` : ''}
+                <div class="totals muted">Налог: ${priced.taxTotal.toLocaleString()} ₸</div>
+                <div class="totals muted">Доставка: ${priced.shipping.toLocaleString()} ₸</div>
+                <div class="totals"><strong>Итого: ${priced.grandTotal.toLocaleString()} ₸</strong></div>
+                <div class="muted" style="display:flex;align-items:center;gap:8px;">
+                    ${priced.giftImage ? `<img src="${priced.giftImage}" alt="Подарок" style="width:36px;height:36px;object-fit:cover;border-radius:8px;border:1px solid var(--border);">` : ''}
+                    ${priced.gift}
+                </div>
+                <div id="checkout-form" style="margin-top:12px;">
+                    <h4 style="margin:0 0 8px 0;">Оплата и доставка</h4>
+                    <input id="fio" placeholder="ФИО" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-bottom:8px;">
+                    <input id="card" placeholder="Номер карты" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-bottom:8px;">
+                    <input id="email" placeholder="Email для уведомления" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-bottom:8px;">
+                    <select id="city" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-bottom:8px;">
+                        ${['Алматы','Астана','Шымкент','Актобе','Караганда','Тараз','Павлодар','Усть-Каменогорск','Семей','Костанай','Кызылорда','Уральск','Петропавловск','Актау','Атырау','Талдыкорган'].map(c=>`<option value="${c}">${c}</option>`).join('')}
+                    </select>
+                    <select id="delivery" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-bottom:8px;">
+                        <option value="Курьер по городу"${deliveryChoice==='Курьер по городу'?' selected':''}>Курьер по городу</option>
+                        <option value="Почта Казахстана"${deliveryChoice==='Почта Казахстана'?' selected':''}>Почта Казахстана</option>
+                        <option value="Самовывоз"${deliveryChoice==='Самовывоз'?' selected':''}>Самовывоз (0 ₸)</option>
+                    </select>
+                    <button class="btn" onclick="confirmCheckout()">Оплатить</button>
+                </div>
+            `;
+
+            const deliverySelect = document.getElementById('delivery');
+            if (deliverySelect) {
+                deliverySelect.addEventListener('change', async (e) => {
+                    deliveryChoice = e.target.value;
+                    await priceAndRender();
+                }, { once: true });
+            }
+        }
+
+        function confirmCheckout() {
+            const fio = document.getElementById('fio').value.trim();
+            const card = document.getElementById('card').value.trim();
+            const city = document.getElementById('city').value;
+            const email = document.getElementById('email').value.trim();
+            const delivery = document.getElementById('delivery').value;
+            if (!fio || !card || !city || !email || !delivery) {
+                alert('Заполните ФИО, карту, email и выберите город/доставку.');
+                return;
+            }
+            const existingStatus = document.querySelector('.status-card');
+            if (existingStatus) existingStatus.remove();
+            cartTotals.innerHTML += `
+                <div class="status-card" style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:rgba(16,185,129,0.1);color:#bbf7d0;">
+                    <strong>Заказ оформлен</strong><br>
+                    Доставка: ${delivery}, ${city}.<br>
+                    Трек и чек отправлены на <strong>${email}</strong>.<br>
+                    Статус: сборка → отгрузка → у вас. Спасибо за покупку, ${fio}!
+                </div>
+            `;
+        }
+
+        burger.addEventListener('click', () => {
+            categoriesNav.classList.toggle('open');
+        });
+
+        document.getElementById('cart-button').addEventListener('click', openCart);
+        loadCategories().catch(err => {
+            productsGrid.innerHTML = `<div class="muted">Не удалось загрузить каталог: ${err.message}</div>`;
+        });
+    </script>
+</body>
+</html>
