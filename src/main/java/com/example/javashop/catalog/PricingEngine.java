@@ -16,6 +16,7 @@ import product.tax.ReducedDigitalVat;
 import product.tax.TaxPolicy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class PricingEngine {
         double subtotal = 0;
         double taxTotal = 0;
         List<CartItemPrice> pricedItems = new ArrayList<>();
-        List<Double> unitNets = new ArrayList<>();
+        Map<String, List<Double>> categoryUnits = new HashMap<>();
 
         for (CartItemRequest req : items) {
             if (req == null || req.getProductId() == null) continue;
@@ -97,14 +98,16 @@ public class PricingEngine {
 
             if (!isSale) {
                 double unitNet = bestNet / qty;
+                categoryUnits.computeIfAbsent(cp.getCategoryId(), k -> new ArrayList<>());
+                List<Double> bucket = categoryUnits.get(cp.getCategoryId());
                 for (int i = 0; i < qty; i++) {
-                    unitNets.add(unitNet);
+                    bucket.add(unitNet);
                 }
             }
         }
 
         double originalSubtotal = subtotal;
-        double promoDiscount = calculateThirdItemDiscount(unitNets);
+        double promoDiscount = calculateThirdItemDiscount(categoryUnits);
         double adjustedSubtotal = Math.max(0.0, originalSubtotal - promoDiscount);
         double adjustedTax = originalSubtotal > 0 ? taxTotal * (adjustedSubtotal / originalSubtotal) : 0.0;
         double shipping = hasPhysical ? 500.0 : 0.0;
@@ -159,12 +162,15 @@ public class PricingEngine {
         return noTax;
     }
 
-    private double calculateThirdItemDiscount(List<Double> unitNets) {
-        if (unitNets == null || unitNets.isEmpty()) return 0.0;
-        unitNets.sort(Double::compareTo);
+    private double calculateThirdItemDiscount(Map<String, List<Double>> categoryUnits) {
+        if (categoryUnits == null || categoryUnits.isEmpty()) return 0.0;
         double discount = 0.0;
-        for (int i = 2; i < unitNets.size(); i += 3) {
-            discount += unitNets.get(i) * 0.5;
+        for (List<Double> units : categoryUnits.values()) {
+            if (units == null || units.isEmpty()) continue;
+            units.sort(Double::compareTo);
+            for (int i = 2; i < units.size(); i += 3) {
+                discount += units.get(i) * 0.5;
+            }
         }
         return discount;
     }

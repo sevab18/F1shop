@@ -42,6 +42,15 @@
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
+        .logo img {
+            height: 34px;
+            width: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            mix-blend-mode: screen; /* убираем черный фон логотипа */
+            background: transparent;
+            object-fit: contain;
+        }
         .logo small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; letter-spacing: 0; }
         nav {
             display: flex;
@@ -92,7 +101,13 @@
         .burger span::before { top: -6px; }
         .burger span::after { top: 6px; }
         .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            grid-auto-rows: 1fr;
+            align-items: stretch;
+        }
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -102,6 +117,9 @@
             flex-direction: column;
             gap: 12px;
             box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+            height: 100%;
+            min-height: 520px;
+            overflow: hidden;
         }
         .card h3 { margin: 0; }
         .muted { color: var(--muted); font-size: 0.9rem; }
@@ -119,11 +137,12 @@
             cursor: pointer;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
+        .card .btn { margin-top: auto; width: 100%; }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(225,6,0,0.3); }
         .floating-cart {
             position: fixed;
-            right: 20px;
-            bottom: 20px;
+            right: clamp(16px, 2vw, 28px);
+            bottom: clamp(76px, 7vh, 120px);
             background: var(--accent);
             color: white;
             border: none;
@@ -136,7 +155,8 @@
             font-size: 1.3rem;
             cursor: pointer;
             box-shadow: 0 10px 30px rgba(225,6,0,0.35);
-            z-index: 1100;
+            z-index: 1300;
+            backdrop-filter: blur(4px);
         }
         .floating-cart span {
             position: absolute;
@@ -156,15 +176,75 @@
             max-width: 780px;
             width: 90%;
         }
+        /* Modal for product details */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.2s ease;
+            opacity: 0;
+        }
+        .modal-backdrop.visible {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            max-width: 860px;
+            width: min(92vw, 860px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+            animation: pop 0.22s ease;
+        }
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 14px;
+        }
+        .modal-gallery {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0b1220;
+            aspect-ratio: 3 / 4;
+            max-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-gallery img { width: 100%; height: 100%; object-fit: contain; }
+        .modal-thumbs { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .modal-thumbs img { width: 72px; height: 72px; border-radius: 10px; border: 1px solid var(--border); object-fit: cover; cursor: pointer; opacity: 0.9; }
+        .modal-thumbs img.active { opacity: 1; border-color: var(--accent); }
+        .modal-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 10px; }
+        .store-card { padding: 10px !important; min-height: auto; }
+        @keyframes pop { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         table { width: 100%; border-collapse: collapse; }
         td, th { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
         .totals { text-align: right; }
         .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #1f2937; color: var(--muted); font-size: 0.8rem; }
-        .image-box { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #0b1220; }
-        .image-box img { width: 100%; display: block; }
+        .image-box { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #0b1220; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; }
+        .image-box img { width: 100%; height: 100%; display: block; object-fit: cover; }
         .thumbs { display: flex; gap: 6px; }
-        .thumbs img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; opacity: 0.8; }
+        .thumbs img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; opacity: 0.85; }
         .thumbs img.active { opacity: 1; border-color: var(--accent); }
+        /* Smooth reveal */
+        .card.hidden, .section-reveal.hidden {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .card.visible, .section-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
         /* Host banner with spider drop effect */
         #host-banner {
             position: fixed;
@@ -230,7 +310,7 @@
 <body>
     <header>
         <div class="logo">
-            <i class="fas fa-flag-checkered"></i>
+            <img src="/images/logotip.png" alt="F1Shop">
             <div>
                 <div>F1Shop</div>
                 <small>Техника · Цифра · Мерч</small>
@@ -257,23 +337,23 @@
 
     <section class="container" id="stores" style="margin-top:20px; margin-bottom:80px;">
         <h3 style="margin:0 0 12px 0;">Адреса магазинов</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
-            <div class="card" style="padding:12px;">Алматы: ул. Абая, 10</div>
-            <div class="card" style="padding:12px;">Астана: пр. Достык, 5</div>
-            <div class="card" style="padding:12px;">Шымкент: пр. Тауке хана, 20</div>
-            <div class="card" style="padding:12px;">Актобе: ул. Алиева, 8</div>
-            <div class="card" style="padding:12px;">Караганда: пр. Бухар-Жырау, 15</div>
-            <div class="card" style="padding:12px;">Тараз: ул. Толе би, 12</div>
-            <div class="card" style="padding:12px;">Павлодар: ул. Ломова, 3</div>
-            <div class="card" style="padding:12px;">Усть-Каменогорск: пр. Назарбаева, 4</div>
-            <div class="card" style="padding:12px;">Семей: ул. Момышулы, 6</div>
-            <div class="card" style="padding:12px;">Костанай: пр. Абая, 9</div>
-            <div class="card" style="padding:12px;">Кызылорда: ул. Байтурсынова, 7</div>
-            <div class="card" style="padding:12px;">Уральск: пр. Евразия, 21</div>
-            <div class="card" style="padding:12px;">Петропавловск: ул. Конституции, 18</div>
-            <div class="card" style="padding:12px;">Актау: 12 мкр, д.5</div>
-            <div class="card" style="padding:12px;">Атырау: ул. Сатпаева, 14</div>
-            <div class="card" style="padding:12px;">Талдыкорган: ул. Абылай хана, 2</div>
+        <div class="section-reveal hidden" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+            <div class="card store-card">Алматы: ул. Абая, 10</div>
+            <div class="card store-card">Астана: пр. Достык, 5</div>
+            <div class="card store-card">Шымкент: пр. Тауке хана, 20</div>
+            <div class="card store-card">Актобе: ул. Алиева, 8</div>
+            <div class="card store-card">Караганда: пр. Бухар-Жырау, 15</div>
+            <div class="card store-card">Тараз: ул. Толе би, 12</div>
+            <div class="card store-card">Павлодар: ул. Ломова, 3</div>
+            <div class="card store-card">Усть-Каменогорск: пр. Назарбаева, 4</div>
+            <div class="card store-card">Семей: ул. Момышулы, 6</div>
+            <div class="card store-card">Костанай: пр. Абая, 9</div>
+            <div class="card store-card">Кызылорда: ул. Байтурсынова, 7</div>
+            <div class="card store-card">Уральск: пр. Евразия, 21</div>
+            <div class="card store-card">Петропавловск: ул. Конституции, 18</div>
+            <div class="card store-card">Актау: 12 мкр, д.5</div>
+            <div class="card store-card">Атырау: ул. Сатпаева, 14</div>
+            <div class="card store-card">Талдыкорган: ул. Абылай хана, 2</div>
         </div>
     </section>
 
@@ -281,6 +361,32 @@
         <i class="fas fa-shopping-cart"></i>
         <span id="cart-count">0</span>
     </button>
+
+    <div id="product-modal" class="modal-backdrop">
+        <div class="modal-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <h3 id="modal-title" style="margin:0;"></h3>
+                <button onclick="closeProductModal()" style="background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;">✕</button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="modal-gallery">
+                        <img id="modal-main" alt="">
+                    </div>
+                    <div id="modal-thumbs" class="modal-thumbs"></div>
+                </div>
+                <div>
+                    <div id="modal-desc" class="muted" style="margin-bottom:10px;"></div>
+                    <div id="modal-price" style="font-weight:700;font-size:1.1rem;margin-bottom:8px;"></div>
+                    <div id="modal-category" class="pill" style="margin-bottom:10px;"></div>
+                    <div class="modal-actions">
+                        <div class="muted" id="modal-note"></div>
+                        <button class="btn" id="modal-add">В корзину</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <dialog id="cart-dialog">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -311,6 +417,24 @@
         const cartTotals = document.getElementById('cart-totals');
         const cartCountEl = document.getElementById('cart-count');
         const burger = document.getElementById('burger');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    entry.target.classList.remove('hidden');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        const modal = document.getElementById('product-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMain = document.getElementById('modal-main');
+        const modalThumbs = document.getElementById('modal-thumbs');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalPrice = document.getElementById('modal-price');
+        const modalCategory = document.getElementById('modal-category');
+        const modalNote = document.getElementById('modal-note');
+        const modalAdd = document.getElementById('modal-add');
 
         let catalog = {};
         let cart = [];
@@ -321,6 +445,22 @@
             const resp = await fetch(url, options);
             if (!resp.ok) throw new Error('API error: ' + resp.status);
             return await resp.json();
+        }
+
+        function observeSections() {
+            document.querySelectorAll('.section-reveal').forEach(node => {
+                node.classList.add('hidden');
+                revealObserver.observe(node);
+            });
+        }
+
+        function normalizeCardHeights() {
+            const cards = Array.from(productsGrid.querySelectorAll('.card'));
+            if (!cards.length) return;
+            cards.forEach(c => c.style.minHeight = '');
+            let max = 0;
+            cards.forEach(c => { max = Math.max(max, c.offsetHeight); });
+            cards.forEach(c => c.style.minHeight = `${max}px`);
         }
 
         function renderNav() {
@@ -371,7 +511,7 @@
             productsGrid.innerHTML = '';
             list.forEach(p => {
                 const card = document.createElement('div');
-                card.className = 'card';
+                card.className = 'card hidden';
                 const hasColors = p.colors && Object.keys(p.colors).length > 0;
                 const hasPrint = p.printAvailable;
                 const images = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
@@ -403,6 +543,10 @@
                     <button class="btn" data-add="${p.id}">В корзину</button>
                 `;
                 card.querySelector('[data-add]').addEventListener('click', () => addToCart(p.id));
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('[data-add]')) return;
+                    openProductModal(p);
+                });
                 card.querySelectorAll('[data-thumb]').forEach(t => {
                     t.addEventListener('click', (e) => {
                         const img = e.target.getAttribute('data-img');
@@ -413,7 +557,9 @@
                     });
                 });
                 productsGrid.appendChild(card);
+                revealObserver.observe(card);
             });
+            setTimeout(normalizeCardHeights, 60);
         }
 
         function addToCart(productId) {
@@ -431,6 +577,47 @@
                 cart.push({ productId, quantity: 1, color: selectedColor, withPrint });
             }
             cartCountEl.textContent = cart.reduce((s,i)=>s+i.quantity, 0);
+        }
+
+        function updateCartItem(productId, color, withPrint, delta) {
+            const item = cart.find(c => c.productId === productId && c.color === color && c.withPrint === withPrint);
+            if (!item) return;
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                const idx = cart.indexOf(item);
+                cart.splice(idx, 1);
+            }
+            cartCountEl.textContent = cart.reduce((s,i)=>s+i.quantity, 0);
+            priceAndRender();
+        }
+
+        function openProductModal(p) {
+            modalTitle.textContent = p.name;
+            modalDesc.textContent = p.specs || p.description || '';
+            modalPrice.textContent = `Цена: ${p.basePrice.toLocaleString()} ₸`;
+            modalCategory.textContent = p.categoryId;
+            modalNote.textContent = p.printAvailable ? 'Есть опция печати' : 'Без печати';
+            modalAdd.onclick = () => {
+                addToCart(p.id);
+                closeProductModal();
+            };
+            const images = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+            const mainSrc = images[0] || '';
+            modalMain.src = mainSrc;
+            modalMain.alt = p.name;
+            modalThumbs.innerHTML = images.map((img, idx) => `<img src="${img}" class="${idx===0?'active':''}" data-img="${img}">`).join('');
+            modalThumbs.querySelectorAll('img').forEach(img => {
+                img.addEventListener('click', () => {
+                    modalMain.src = img.dataset.img;
+                    modalThumbs.querySelectorAll('img').forEach(t => t.classList.remove('active'));
+                    img.classList.add('active');
+                });
+            });
+            modal.classList.add('visible');
+        }
+
+        function closeProductModal() {
+            modal.classList.remove('visible');
         }
 
         function closeCart() {
@@ -470,9 +657,18 @@
                                     ${i.name}<div class="muted">${i.appliedPolicy}</div>
                                 </div>
                             </td>
-                            <td>${i.quantity}</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <button data-dec="${i.productId}" data-color="${i.color||''}" data-print="${i.withPrint||false}" style="background:transparent;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;">-</button>
+                                    <span>${i.quantity}</span>
+                                    <button data-inc="${i.productId}" data-color="${i.color||''}" data-print="${i.withPrint||false}" style="background:transparent;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;">+</button>
+                                </div>
+                            </td>
                             <td>${i.discountApplied.toLocaleString()} ₸</td>
                             <td>${i.total.toLocaleString()} ₸</td>
+                            <td>
+                                <button data-remove="${i.productId}" data-color="${i.color||''}" data-print="${i.withPrint||false}" style="background:transparent;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;">×</button>
+                            </td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -512,6 +708,17 @@
                     await priceAndRender();
                 }, { once: true });
             }
+
+            // Attach qty handlers
+            cartBody.querySelectorAll('[data-dec]').forEach(btn => {
+                btn.addEventListener('click', () => updateCartItem(btn.dataset.dec, btn.dataset.color || null, btn.dataset.print === 'true', -1));
+            });
+            cartBody.querySelectorAll('[data-inc]').forEach(btn => {
+                btn.addEventListener('click', () => updateCartItem(btn.dataset.inc, btn.dataset.color || null, btn.dataset.print === 'true', 1));
+            });
+            cartBody.querySelectorAll('[data-remove]').forEach(btn => {
+                btn.addEventListener('click', () => updateCartItem(btn.dataset.remove, btn.dataset.color || null, btn.dataset.print === 'true', -999));
+            });
         }
 
         function confirmCheckout() {
@@ -540,6 +747,18 @@
             categoriesNav.classList.toggle('open');
         });
 
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeProductModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeProductModal();
+                closeCart();
+            }
+        });
+
+        observeSections();
+        window.addEventListener('resize', () => normalizeCardHeights());
         document.getElementById('cart-button').addEventListener('click', openCart);
         loadCategories().catch(err => {
             productsGrid.innerHTML = `<div class="muted">Не удалось загрузить каталог: ${err.message}</div>`;

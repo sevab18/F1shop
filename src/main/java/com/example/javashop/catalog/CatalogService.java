@@ -21,6 +21,48 @@ public class CatalogService {
         seedData();
     }
 
+    public synchronized ProductResponse addDynamicProduct(com.example.javashop.api.dto.ProductCreateRequest req) {
+        if (req == null) throw new IllegalArgumentException("Request is required");
+        if (req.getName() == null || req.getName().isBlank()) throw new IllegalArgumentException("Name is required");
+        if (req.getCategoryId() == null || req.getCategoryId().isBlank()) throw new IllegalArgumentException("Category is required");
+        if (req.getPrice() <= 0) throw new IllegalArgumentException("Price must be > 0");
+
+        Category category = categories.get(req.getCategoryId());
+        if (category == null) {
+            throw new IllegalArgumentException("Category not found: " + req.getCategoryId());
+        }
+
+        String id = (req.getId() == null || req.getId().isBlank()) ? "DYN-" + (productIndex.size() + 1) : req.getId();
+        String type = req.getType() == null ? "physical" : req.getType().toLowerCase();
+
+        Product product;
+        if ("digital".equals(type)) {
+            product = new product.DigitalProduct(id, req.getName(), Math.max(0, req.getPrice()), Math.max(0, req.getDownloadSizeMb()));
+        } else {
+            product = new PhysicalProduct(id, req.getName(), Math.max(0, req.getPrice()), Math.max(0, req.getWeightKg()));
+        }
+        if (req.getDescription() != null) {
+            product.trySetDescription(req.getDescription());
+        }
+
+        Map<String, Integer> colors = req.getColors() == null ? Map.of() : new HashMap<>(req.getColors());
+        String image = req.getImage() != null ? req.getImage() : "";
+        List<String> images = req.getImages() != null && !req.getImages().isEmpty() ? new ArrayList<>(req.getImages()) : List.of(image);
+
+        addProduct(category, product, req.getDescription(), colors, req.isPrintAvailable(), image, images);
+        return toResponse(productIndex.get(product.getId()));
+    }
+
+    public synchronized boolean deleteProduct(String productId) {
+        CatalogProduct removed = productIndex.remove(productId);
+        if (removed == null) return false;
+        Category c = categories.get(removed.getCategoryId());
+        if (c != null) {
+            c.removeProduct(removed.getProduct());
+        }
+        return true;
+    }
+
     private void seedData() {
         Category tech = new Category("tech", "Техника", "Ноутбуки и мобильные устройства");
         Category digital = new Category("digital", "Цифровые товары", "Электронные книги");
@@ -124,22 +166,22 @@ public class CatalogService {
                 "Тёплая худи, лимитированная серия",
                 Map.of(),
                 false,
-                "/images/sale-hoodie1.webp",
-                List.of("/images/sale-hoodie1.webp"));
+                "/images/hoodie.png",
+                List.of("/images/hoodie.png"));
 
         addProduct(sale, new PhysicalProduct("S02", "Футболка новогодняя", 2_000, 0.3),
                 "Лёгкая футболка с принтом F1",
                 Map.of(),
                 false,
-                "/images/sale-hoodie2.webp",
-                List.of("/images/sale-hoodie2.webp"));
+                "/images/Tshirt.png",
+                List.of("/images/Tshirt.png"));
 
         addProduct(sale, new PhysicalProduct("S03", "Кружка праздничная", 1_000, 0.4),
                 "Подарочная кружка, ограниченный тираж",
                 Map.of(),
                 false,
-                "/images/sale-mug.webp",
-                List.of("/images/sale-mug.webp"));
+                "/images/stakan.png",
+                List.of("/images/stakan.png"));
     }
 
     private void addProduct(Category category,

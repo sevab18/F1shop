@@ -4,6 +4,7 @@ product\pricing\BogoHalf.class
 com\example\javashop\api\dto\CategoryResponse.class
 product\tax\TaxPolicy.class
 com\example\javashop\JavashopApplication.class
+com\example\javashop\api\dto\ProductCreateRequest.class
 com\example\javashop\api\dto\CartRequest.class
 product\tax\FlatVat.class
 com\example\javashop\catalog\CatalogService.class
